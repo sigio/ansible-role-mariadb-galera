@@ -8,7 +8,12 @@ bind-address=0.0.0.0
 
 # Galera Provider Configuration
 wsrep_on=ON
+{% if ansible_os_family == 'Debian' %}
 wsrep_provider=/usr/lib/galera/libgalera_smm.so
+{% endif %}
+{% if ansible_os_family == 'RedHat' %}
+wsrep_provider=/opt/rh/rh-mariadb{{mariadb_major}}{{mariadb_minor}}/root/usr/lib64/galera/libgalera_smm.so
+{% endif %}
 
 # Galera Cluster Configuration
 wsrep_cluster_name="{{galera_wsrep_cluster_name}}"

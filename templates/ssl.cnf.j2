@@ -1,10 +1,8 @@
 # {{ ansible_managed }}
 
 {% if mariadb_tls %}
-
 [mysqld]
-ssl-ca=/etc/mysql/ssl/{{rootcafile}}
-ssl-cert=/etc/mysql/ssl/{{inventory_hostname_short}}.{{dns_domain}}.pem
-ssl-key=/etc/mysql/ssl/{{inventory_hostname_short}}.{{dns_domain}}.key
-
+ssl-ca={{mariadb_conf_dir}}/ssl/{{rootcafile}}
+ssl-cert={{mariadb_conf_dir}}/ssl/{{inventory_hostname_short}}.{{dns_domain}}.pem
+ssl-key={{mariadb_conf_dir}}/ssl/{{inventory_hostname_short}}.{{dns_domain}}.key
 {% endif %}

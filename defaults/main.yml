@@ -5,3 +5,9 @@ mariadb_minor: "1"
 mariadb_version: "{{mariadb_major}}.{{mariadb_minor}}"
 mariadb_mirror: "http://ftp.hosteurope.de/mirror/mariadb.org/repo/"
 mariadb_tls: false
+
+# Ubuntu/Debian using mariadb.org packages
+mariadb_conf_dir: "/etc/mysql/conf.d"
+
+# CentOS/RedHat using software-collections packages
+#mariadb_conf_dir: "/etc/my.cnf.d"

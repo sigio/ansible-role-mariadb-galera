@@ -1,0 +1,5 @@
+# {{ansible_managed}}
+# MariaDB {{mariadb_version}} repository list
+# http://downloads.mariadb.org/mariadb/repositories/
+deb     {{mariadb_mirror}}/{{mariadb_version}}/{{ansible_distribution|lower}} {{ansible_distribution_release}} main
+deb-src {{mariadb_mirror}}/{{mariadb_version}}/{{ansible_distribution|lower}} {{ansible_distribution_release}} main

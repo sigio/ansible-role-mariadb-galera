@@ -1,0 +1,55 @@
+---
+
+- name: Import mariadb repository key
+  apt_key: keyserver=keyserver.ubuntu.com id={{item}}
+  with_items:
+    - "0xcbcb082a1bb943db"
+    - "0xF1656F24C74CD1D8"
+  notify: update apt
+
+- name: Configure software repository
+  template: src=mariadb.list.j2 dest=/etc/apt/sources.list.d/mariadb.list
+  notify: update apt
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Install MariaDB Server
+  apt: name={{item}} state=installed
+  with_items:
+    - mariadb-server-{{mariadb_version}}
+    - mariadb-client-core-{{mariadb_version}}
+    - galera-3
+
+- name: Template mysql related files
+  template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
+  with_items:
+    - { src: "galera.cnf.j2", dest: "/etc/mysql/conf.d/galera.cnf", mode: "0644" }
+    - { src: "ufw-galera.j2", dest: "/etc/ufw/applications.d/galera", mode: "0644" }
+    - { src: "ssl.cnf.j2", dest: "/etc/mysql/conf.d/ssl", mode: "0644" }
+  tags:
+    - firewall
+
+- name: Allow galera cluster to communicate
+  ufw: rule=allow name="galera" src="{{item}}/32"
+  with_items:
+    - "{{galera_cluster_nodes}}"
+  when: ufw_enabled|bool
+  tags:
+    - firewall
+
+- name: Allow galera cluster to communicate
+  ufw: rule=allow name="galera-udp" src="{{item}}/32"
+  with_items:
+    - "{{galera_cluster_nodes}}"
+  when: ufw_enabled|bool
+  tags:
+    - firewall
+
+# TODO:
+# Define firewall zone for cluster
+# Add allowed ports to filewall zone: 
+# 3306 For MySQL client connections and State Snapshot Transfer that use the mysqldump method.
+# 4567 For Galera Cluster replication traffic, multicast replication uses both UDP transport and TCP on this port.
+# 4568 For Incremental State Transfer.
+# 4444 For all other State Snapshot Transfer.

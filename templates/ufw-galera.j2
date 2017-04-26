@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+
+[MySQL]
+title=Mysql Database
+description=Database server
+ports=3306/tcp
+
+[galera]
+title=MySQL Galera Cluster
+description=Mysql Galera Cluster communication
+ports=3306,4444,4567,4568/tcp
+
+[galera-udp]
+title=MySQL Galera Cluster
+description=Mysql Galera Cluster communication
+ports=4567,4568/udp

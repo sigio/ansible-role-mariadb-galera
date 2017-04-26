@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+
+{% if mariadb_tls %}
+
+[mysqld]
+ssl-ca=/etc/mysql/ssl/{{rootcafile}}
+ssl-cert=/etc/mysql/ssl/{{inventory_hostname_short}}.{{dns_domain}}.pem
+ssl-key=/etc/mysql/ssl/{{inventory_hostname_short}}.{{dns_domain}}.key
+
+{% endif %}

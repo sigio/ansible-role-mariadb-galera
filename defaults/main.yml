@@ -1,0 +1,7 @@
+---
+
+mariadb_major: "10"
+mariadb_minor: "1"
+mariadb_version: "{{mariadb_major}}.{{mariadb_minor}}"
+mariadb_mirror: "http://ftp.hosteurope.de/mirror/mariadb.org/repo/"
+mariadb_tls: false

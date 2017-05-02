@@ -2,6 +2,7 @@
 galaxy_info:
   author: sigio
   description: Configure MariaDB 10.x on CentOS/RedHat/Ubuntu with or without a galera cluster, selinux and firewall rules (ufw+firewalld)
+  company: Sig-I/O Automatisering
   license: MIT
   min_ansible_version: 2.2
   platforms:
@@ -11,6 +12,6 @@ galaxy_info:
     - 7
   - name: Ubuntu
     versions:
-      - 16.04
+    - xenial
   categories:
   - system

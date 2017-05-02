@@ -6,7 +6,7 @@ Install mariadb with galera support on Ubuntu LTS or CentOS/RHEL 7.x
 Requirements
 ------------
 
-On CentOS/RedHat the software-collections version is used. On Ubuntu/Debian the mariadb packages from mariadb.org are used.
+On CentOS/RedHat and Ubuntu/Debian the mariadb packages from mariadb.org are used. (I've tried with the software-collections version for RHEL 7, but couldn't get them to build a galera cluster)
 
 Role Variables
 --------------

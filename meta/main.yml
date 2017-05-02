@@ -13,5 +13,10 @@ galaxy_info:
   - name: Ubuntu
     versions:
     - xenial
-  categories:
-  - system
+  galaxy_tags:
+  - mariadb
+  - mysql
+  - galera
+  - firewalld
+  - ufw
+  - selinux

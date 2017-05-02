@@ -8,19 +8,23 @@
   notify: update apt
   when: ansible_os_family == 'Debian'
   tags:
-    - yup
+    - apt_key
 
 - name: Configure software repository (debian/ubuntu)
   template: src=mariadb.list.j2 dest=/etc/apt/sources.list.d/mariadb.list
   notify: update apt
   when: ansible_os_family == 'Debian'
   tags:
-    - yup
+    - apt_repo
+
+- name: Configure software repository (centos/redhat)
+  template: src=mariadb.repo.j2 dest=/etc/yum.repos.d/mariadb.repo
+  when: ansible_os_family == 'RedHat'
+  tags:
+    - yum_repo
 
 - name: Flush handlers
   meta: flush_handlers
-  tags:
-    - yup
 
 - name: Install MariaDB Server (debian/ubuntu)
   apt: name={{item}} state=installed
@@ -30,58 +34,90 @@
     - galera-3
   when: ansible_os_family == 'Debian'
   tags:
-    - yup
+    - apt_pkg
 
 - name: Install MariaDB Server (centos/redhat)
   yum: name={{item}} state=installed
   with_items:
-    - rh-mariadb{{mariadb_major}}{{mariadb_minor}}-mariadb-server
-    - rh-mariadb{{mariadb_major}}{{mariadb_minor}}-mariadb
-    - rh-mariadb{{mariadb_major}}{{mariadb_minor}}-galera
+    - mariadb-server
+    - mariadb
+    - galera
   when: ansible_os_family == 'RedHat'
   tags:
-    - yup
+    - yum_pkg
 
-- name: Template mysql related files
+- name: Template galera config file (when in a galera cluster)
   template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
   with_items:
     - { src: "galera.cnf.j2", dest: "{{mariadb_conf_dir}}/galera.cnf", mode: "0644" }
+  when: galera_wsrep_cluster_name|bool
+  tags:
+    - galera
+    - template
+
+- name: Template misc mariadb config files
+  template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
+  with_items:
     - { src: "ssl.cnf.j2", dest: "{{mariadb_conf_dir}}/ssl", mode: "0644" }
   tags:
-    - firewall
-    - yup
+    - ssl_cnf
+    - template
 
-- name: Template ufw config for galera/mysql
+- name: Template ufw config for galera/mysql (ubuntu)
   template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
   with_items:
     - { src: "ufw-galera.j2", dest: "/etc/ufw/applications.d/galera", mode: "0644" }
   when: ansible_os_family == 'Debian'
   tags:
     - firewall
-    - yup
+    - template
 
-- name: Allow galera cluster to communicate
+- name: Template firewalld config for galera/mysql (centos/redhat)
+  template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
+  with_items:
+    - { src: "firewalld-galera.j2", dest: "/etc/firewalld/services/galera.xml", mode: "0644" }
+  when: ansible_os_family == 'RedHat'
+  tags:
+    - firewall
+    - template
+
+- name: Allow galera cluster to communicate 1 (ubuntu)
   ufw: rule=allow name="galera" src="{{item}}/32"
   with_items:
     - "{{galera_cluster_nodes}}"
   when: ansible_os_family == 'Debian' and ufw_enabled|bool
   tags:
     - firewall
-    - yup
 
-- name: Allow galera cluster to communicate
+- name: Allow galera cluster to communicate 2 (ubuntu)
   ufw: rule=allow name="galera-udp" src="{{item}}/32"
   with_items:
     - "{{galera_cluster_nodes}}"
   when: ansible_os_family == 'Debian' and ufw_enabled|bool
   tags:
     - firewall
-    - yup
 
-# TODO:
-# Define firewall zone for cluster
-# Add allowed ports to filewall zone: 
-# 3306 For MySQL client connections and State Snapshot Transfer that use the mysqldump method.
-# 4567 For Galera Cluster replication traffic, multicast replication uses both UDP transport and TCP on this port.
-# 4568 For Incremental State Transfer.
-# 4444 For all other State Snapshot Transfer.
+- name: Allow galera cluster to communicate (redhat)
+  firewalld: service="galera" permanent=true state=enabled
+  when: ansible_os_family == 'RedHat' and firewalld_enabled|bool
+  tags:
+    - firewall
+
+- name: Add Galera ports to mysqld_port_t selinux tag
+  seport: ports="{{item.port}}" proto="{{item.proto|default('tcp')}}" setype="{{item.setype}}" state="{{item.state|default('present')}}"
+  with_items:
+    - { port: "4444", setype: "mysqld_port_t" }
+    - { port: "4567", setype: "mysqld_port_t" }
+    - { port: "4568", setype: "mysqld_port_t" }
+    - { port: "4567", setype: "mysqld_port_t", proto: "udp" }
+  when: ansible_os_family == 'RedHat' and ansible_selinux.status == 'enabled'
+  tags:
+    - selinux
+    - seport
+
+- name: Set selinux permissive mode for mysqld_t
+  selinux_permissive: name=mysqld_t permissive=true
+  when: ansible_os_family == 'RedHat' and ansible_selinux.status == 'enabled'
+  tags:
+    - selinux
+    - sepermissive

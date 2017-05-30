@@ -7,7 +7,9 @@ mariadb_mirror: "http://ftp.hosteurope.de/mirror/mariadb.org/repo/"
 mariadb_tls: false
 
 # Ubuntu/Debian using mariadb.org packages
-mariadb_conf_dir: "/etc/mysql/conf.d"
+# mariadb_conf_dir: "/etc/mysql/conf.d"
 
 # CentOS/RedHat using software-collections packages
-#mariadb_conf_dir: "/etc/my.cnf.d"
+mariadb_conf_dir: "/etc/my.cnf.d"
+
+mariadb_multiple_instances: false

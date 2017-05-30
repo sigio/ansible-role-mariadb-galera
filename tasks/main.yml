@@ -59,9 +59,16 @@
   template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
   with_items:
     - { src: "ssl.cnf.j2", dest: "{{mariadb_conf_dir}}/ssl", mode: "0644" }
+    - { src: "mariadb@.service", dest: "/etc/systemd/system/mariadb@.service" }
   tags:
     - ssl_cnf
     - template
+
+- name: Template instance-configurations
+  template: src="mariadb_instance.j2" dest="{{mariadb_conf_dir}}/instance_{{item.name}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
+  with_flattened:
+    - "{{mariadb_instances}}"
+  when: mariadb_multiple_instances|bool
 
 - name: Template ufw config for galera/mysql (ubuntu)
   template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"

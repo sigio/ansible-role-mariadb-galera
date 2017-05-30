@@ -1,0 +1,14 @@
+# {{ansible_managed }}
+
+# Mysql/MariaDB Instance: {{item.name}}
+
+[mysqld]
+datadir={{item.datadir}}
+socket={{item.socket}}
+port={{item.port}}
+bind-address={{item.bindaddress}}
+log-error={{item.errorlog}}
+
+[mysql]
+socket={{item.socket}}
+host={{item.bindaddress}}

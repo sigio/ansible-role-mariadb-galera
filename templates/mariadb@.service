@@ -22,7 +22,7 @@ Description=MariaDB database server
 After=network.target
 After=syslog.target
 
-ConditionPathExists=/etc/{{mariadb_conf_dir}}/instance_%I.cnf
+ConditionPathExists={{mariadb_conf_dir}}/instance_%I.cnf
 
 [Install]
 WantedBy=multi-user.target
@@ -74,7 +74,7 @@ PermissionsStartOnly=true
 ExecStartPre=/bin/sh -c "systemctl unset-environment _WSREP_START_POSITION%I"
 
 ExecStartPre=/bin/sh -c "[ ! -e /usr/bin/galera_recovery ] && VAR= || \
- VAR=`/usr/bin/galera_recovery --defaults-file=/etc/{{mariadb_conf_dir}}/instance_%I.cnf`; [ $? -eq 0 ] \
+ VAR=`/usr/bin/galera_recovery --defaults-file={{mariadb_conf_dir}}/instance_%I.cnf`; [ $? -eq 0 ] \
  && systemctl set-environment _WSREP_START_POSITION%I=$VAR || exit 1"
 
 # Alternate: (remove ConditionPathExists above)
@@ -95,7 +95,7 @@ ExecStartPre=/bin/sh -c "[ ! -e /usr/bin/galera_recovery ] && VAR= || \
 
 # Note: Place $MYSQLD_OPTS at the very end for its options to take precedence.
 
-ExecStart=/usr/sbin/mysqld --defaults-file=/etc/{{mariadb_conf_dir}}/instance_%I.cnf \
+ExecStart=/usr/sbin/mysqld --defaults-file={{mariadb_conf_dir}}/instance_%I.cnf \
   $_WSREP_NEW_CLUSTER $_WSREP_START_POSITION%I $MYSQLD_OPTS
 # Alternate: (remove ConditionPathExists above)
 # use [mysqld.INSTANCENAME] as sections in my.cnf

@@ -50,7 +50,7 @@
   template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
   with_items:
     - { src: "galera.cnf.j2", dest: "{{mariadb_conf_dir}}/galera.cnf", mode: "0644" }
-  when: galera_wsrep_cluster_name|bool
+  when: galera_wsrep_cluster_name != ""
   tags:
     - galera
     - template
@@ -59,9 +59,11 @@
   template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
   with_items:
     - { src: "ssl.cnf.j2", dest: "{{mariadb_conf_dir}}/ssl", mode: "0644" }
+    - { src: "tuning.cnf.j2", dest: "{{mariadb_conf_dir}}/tuning.cnf", mode: "0644" }
     - { src: "mariadb@.service", dest: "/etc/systemd/system/mariadb@.service" }
   tags:
     - ssl_cnf
+    - mysql-tuning
     - template
 
 - name: Template instance-configurations

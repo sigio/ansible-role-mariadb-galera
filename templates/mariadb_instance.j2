@@ -2,6 +2,10 @@
 
 # Mysql/MariaDB Instance: {{item.name}}
 
+[mysql]
+socket={{item.socket}}
+host={{item.bindaddress}}
+
 [mysqld]
 datadir={{item.datadir}}
 socket={{item.socket}}
@@ -9,6 +13,13 @@ port={{item.port}}
 bind-address={{item.bindaddress}}
 log-error={{item.errorlog}}
 
-[mysql]
-socket={{item.socket}}
-host={{item.bindaddress}}
+# Tuning
+max_allowed_packet=128M
+slow_query_log=1
+log_output=FILE
+long_query_time=2
+
+# Collation settings
+character_set_server = utf8
+collation_server = utf8_general_ci
+

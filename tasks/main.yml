@@ -71,6 +71,8 @@
   with_flattened:
     - "{{mariadb_instances}}"
   when: mariadb_multiple_instances|bool
+  tags:
+    - template
 
 - name: Template ufw config for galera/mysql (ubuntu)
   template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
@@ -107,7 +109,7 @@
     - firewall
 
 - name: Allow galera cluster to communicate (redhat)
-  firewalld: service="galera" permanent=true state=enabled
+  firewalld: service="galera" permanent=true state=enabled immediate=true
   when: ansible_os_family == 'RedHat' and firewalld_enabled|bool
   tags:
     - firewall

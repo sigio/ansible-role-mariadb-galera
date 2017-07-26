@@ -132,3 +132,16 @@
   tags:
     - selinux
     - sepermissive
+
+- name: Install myloader/mydumper from package
+  package: name={{item}} state=installed
+  with_items:
+    - mydumper
+  when: mariadb_install_mydumper_package|bool
+
+- name: Install myloader/mydumper from self-compiled version
+  copy: src={{item}} dest=/usr/local/bin/{{item}} owner=root group=root mode=0755
+  with_items:
+    - myloader
+    - mydumper
+  when: mariadb_install_mydumper_binary|bool

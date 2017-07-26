@@ -13,3 +13,9 @@ mariadb_tls: false
 mariadb_conf_dir: "/etc/my.cnf.d"
 
 mariadb_multiple_instances: false
+
+# Install mydumper/myloaded from binaries in files/ (as there is no up to date rpm package)
+mariadb_install_mydumper_binary: false
+
+# Install mydumper/myloader from package (when present)
+mariadb_install_mydumper_package: false

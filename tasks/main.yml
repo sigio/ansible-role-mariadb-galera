@@ -61,10 +61,19 @@
     - { src: "ssl.cnf.j2", dest: "{{mariadb_conf_dir}}/ssl", mode: "0644" }
     - { src: "tuning.cnf.j2", dest: "{{mariadb_conf_dir}}/tuning.cnf", mode: "0644" }
     - { src: "mariadb@.service", dest: "/etc/systemd/system/mariadb@.service" }
+    - { src: "nrpe-mariadb.cfg.j2", dest: "/etc/nrpe.d/role-mariadb.cfg", owner: "nrpe", group: "nrpe", mode: "0440" }
   tags:
     - ssl_cnf
     - mysql-tuning
     - template
+
+- name: Template mariadb nrpe config
+  template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
+  with_items:
+    - { src: "nrpe-mariadb.cfg.j2", dest: "{{nrpe_include_dir}}/role-mariadb.cfg", owner: "nrpe", group: "nrpe", mode: "0440" }
+  when: mariadb_nrpe|bool
+  tags:
+    - nrpe
 
 - name: Template instance-configurations
   template: src="mariadb_instance.j2" dest="{{mariadb_conf_dir}}/instance_{{item.name}}.cnf" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"

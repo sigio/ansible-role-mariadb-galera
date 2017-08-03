@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+# NRPE checks for MariaDB
+
+{% if mariadb_multiple_instances|bool %}
+{% for instance in mariadb_instances %}
+command[check_mariadb_{{instance.name}}]={{nrpe_plugin_dir}}/check_mysql -n -H "{{instance.bindaddress}}"
+{% endfor %}
+{% else %}
+command[check_mariadb]={{nrpe_plugin_dir}}/check_mysql -n -s "/var/lib/mysql/mysql.sock"
+{% endif %}
+
+{% if galera_wsrep_cluster_name != "" %}
+# Checks for Galera Clustering
+command[check_wsrep_ready]={{nrpe_plugin_dir}}/check_mysql_query -w 0 -c 0 -q "SELECT STRCMP(VARIABLE_VALUE, \"ON\") FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME ='wsrep_ready';"
+{% endif %}

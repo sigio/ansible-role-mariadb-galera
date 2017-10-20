@@ -76,7 +76,7 @@
     - nrpe
 
 - name: Template instance-configurations
-  template: src="mariadb_instance.j2" dest="{{mariadb_conf_dir}}/instance_{{item.name}}.cnf" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
+  template: src="mariadb_instance.j2" dest="{{mariadb_conf_dir}}/instance_{{item.name}}.cnf" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0644')}}"
   with_flattened:
     - "{{mariadb_instances}}"
   when: mariadb_multiple_instances|bool

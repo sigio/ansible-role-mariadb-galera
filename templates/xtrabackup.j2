@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# {{ansible_managed}}
+# Xtrabackup cronjob for mariadb
+
+{% if not mariadb_multiple_instances %}
+/usr/bin/xtrabackup --defaults-file=/root/.my.cnf {{mariadb_xtrabackup_options}} --target-dir={{mariadb_backup_root}}
+{% else %}
+{%   for instance in mariadb_instances %}
+/usr/bin/xtrabackup --defaults-file=/root/.my.cnf-{{instance.name}} {{mariadb_xtrabackup_options}} --target-dir={{mariadb_backup_root}}/{{instance.name}}
+{%   endfor %}
+{% endif %}

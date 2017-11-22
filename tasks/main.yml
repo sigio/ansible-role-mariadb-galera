@@ -32,6 +32,8 @@
     - mariadb-server-{{mariadb_version}}
     - mariadb-client-core-{{mariadb_version}}
     - galera-3
+    - "{% if mariadb_install_xtrabackup|bool %} percona-xtrabackup {% endif %}" # Untested
+    - "{% if mariadb_install_backupninja|bool %} backupninja {% endif %}"
   when: ansible_os_family == 'Debian'
   tags:
     - apt_pkg
@@ -42,6 +44,8 @@
     - mariadb-server
     - mariadb
     - galera
+    - "{% if mariadb_install_xtrabackup|bool %} percona-xtrabackup {% endif %}"
+    - "{% if mariadb_install_backupninja|bool %} backupninja {% endif %}"
   when: ansible_os_family == 'RedHat'
   tags:
     - yum_pkg
@@ -82,6 +86,19 @@
   when: mariadb_multiple_instances|bool
   tags:
     - template
+
+- name: Create backup directory
+  file: state=directory path="{{mariadb_backup_root}}"
+  when: mariadb_configure_xtrabackup|bool or mariadb_configure_backupninja|bool
+
+- include_tasks: "mydumper.yml"
+  when: mariadb_install_mydumper_binary|bool or mariadb_install_mydumper_package|bool
+
+- include_tasks: "backupninja.yml"
+  when: mariadb_configure_backupninja|bool
+
+- include_tasks: "xtrabackup.yml"
+  when: mariadb_configure_xtrabackup|bool
 
 - name: Template ufw config for galera/mysql (ubuntu)
   template: src="{{item.src}}" dest="{{item.dest}}" owner="{{item.owner|default('root')}}" group="{{item.group|default('root')}}" mode="{{item.mode|default('0600')}}"
@@ -141,16 +158,3 @@
   tags:
     - selinux
     - sepermissive
-
-- name: Install myloader/mydumper from package
-  package: name={{item}} state=installed
-  with_items:
-    - mydumper
-  when: mariadb_install_mydumper_package|bool
-
-- name: Install myloader/mydumper from self-compiled version
-  copy: src={{item}} dest=/usr/local/bin/{{item}} owner=root group=root mode=0755
-  with_items:
-    - myloader
-    - mydumper
-  when: mariadb_install_mydumper_binary|bool

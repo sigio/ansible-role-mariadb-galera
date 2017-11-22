@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+
+hotcopy = no
+sqldump = yes
+compress = {{mariadb_backup_compress}}
+databases = {{mariadb_backup_databases}}
+sqldumpoptions = --single-transaction --complete-insert --add-drop-table --quick --quote-names
+
+{% if mariadb_multiple_instances %}
+backupdir = {{mariadb_backup_root}}/{{item.name}}/
+dbhost = {{item.bindaddress}}
+configfile = /root/.my.cnf-{{item.name}}
+{% else %}
+backupdir = {{mariadb_backup_root}}/
+dbhost = localhost
+configfile = /root/.my.cnf
+{% endif %}

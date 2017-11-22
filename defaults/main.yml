@@ -15,8 +15,43 @@ mariadb_conf_dir: "/etc/my.cnf.d"
 
 mariadb_multiple_instances: false
 
+#                                                               BACKUP
+# Various backup/restore options
+# We can install mydumper, xtrabackup (using innobackupex) or backupninja (using mysqldump)
+# By default, all of these are off, but can be toggled with the following options
+#
+# For xtrabackup we can configure a cronjob to do dumps, see options below
+# For Backupninja, we can create the job files, scheduling is up to you (or defaults)
+# For mydumper, we just place the binaries, please configure something yourself at this time
+
+#                                                               MYDUMPER
 # Install mydumper/myloaded from binaries in files/ (as there is no up to date rpm package)
 mariadb_install_mydumper_binary: false
 
 # Install mydumper/myloader from package (when present)
 mariadb_install_mydumper_package: false
+
+#                                                               XTRABACKUP
+# Install percona-xtrabackup
+mariadb_install_xtrabackup:     false
+# Configure jobs for xtrabackup
+mariadb_configure_xtrabackup:   false
+
+# Options to pass to xtrabackup
+mariadb_xtrabackup_options:     "--compress --backup"
+
+# When to run innobackup from cron (cron time fields)
+mariadb_xtrabackup_cron_minute:     "10"
+mariadb_xtrabackup_cron_hour:       "02"
+mariadb_xtrabackup_cron_weekday:    "*"
+
+#                                                               BACKUPNINJA
+# Install backupninja
+mariadb_install_backupninja:    false
+# Configure backupninja jobs for installed databases
+mariadb_configure_backupninja:  false
+
+mariadb_backup_root:            "/var/backups"
+mariadb_backup_compress:        "yes"
+mariadb_backup_databases:       "all"
+

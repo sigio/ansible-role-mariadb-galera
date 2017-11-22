@@ -1,0 +1,15 @@
+---
+
+- name: Create backup directory
+  file: state=directory path="{{mariadb_backup_root}}"
+
+# Backupninja templates
+- name: Template backupninja mysql configurations
+  template: src="backupninja.j2" dest="/etc/backup.d/20.mysql" mode="{{item.mode|default('0600')}}"
+  when: mariadb_configure_backupninja|bool and not mariadb_multiple_instances|bool
+
+- name: Template backupninja instance-configurations
+  template: src="backupninja.j2" dest="/etc/backup.d/20-{{item.name}}.mysql" mode="{{item.mode|default('0600')}}"
+  with_flattened:
+    - "{{mariadb_instances}}"
+  when: mariadb_configure_backupninja and mariadb_multiple_instances|bool

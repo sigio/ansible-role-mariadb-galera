@@ -1,0 +1,18 @@
+---
+
+- name: Create backup directory
+  file: state=directory path="{{mariadb_backup_root}}"
+
+# Backupninja templates
+- name: Template xtrabackup cronjob script
+  template: src="xtrabackup.j2" dest="/usr/local/bin/backup-databases" mode=0700
+
+- name: Activate xtrabackup cronjob
+  cron:
+      cron_file: xtrabackup
+      user: root
+      state: present
+      job: "/usr/local/bin/backup-databases"
+      minute: "{{mariadb_xtrabackup_cron_minute}}"
+      hour: "{{mariadb_xtrabackup_cron_hour}}"
+      weekday: "{{mariadb_xtrabackup_cron_weekday}}"

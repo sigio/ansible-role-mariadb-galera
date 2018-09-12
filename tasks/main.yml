@@ -27,7 +27,7 @@
   meta: flush_handlers
 
 - name: Install MariaDB Server (debian/ubuntu)
-  apt: name={{item}} state=installed
+  apt: name={{item}} state=present
   with_items:
     - mariadb-server-{{mariadb_version}}
     - mariadb-client-core-{{mariadb_version}}
@@ -39,7 +39,7 @@
     - apt_pkg
 
 - name: Install MariaDB Server (centos/redhat)
-  yum: name={{item}} state=installed
+  yum: name={{item}} state=present
   with_items:
     - mariadb-server
     - mariadb
@@ -158,3 +158,16 @@
   tags:
     - selinux
     - sepermissive
+
+- name: Install myloader/mydumper from package
+  package: name={{item}} state=present
+  with_items:
+    - mydumper
+  when: mariadb_install_mydumper_package|bool
+
+- name: Install myloader/mydumper from self-compiled version
+  copy: src={{item}} dest=/usr/local/bin/{{item}} owner=root group=root mode=0755
+  with_items:
+    - myloader
+    - mydumper
+  when: mariadb_install_mydumper_binary|bool

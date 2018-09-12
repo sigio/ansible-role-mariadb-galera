@@ -23,5 +23,5 @@ wsrep_cluster_address="{{galera_wsrep_cluster_address}}"
 wsrep_sst_method=rsync
 
 # Galera Node Configuration
-wsrep_node_address="{{ansible_default_ipv4.address}}"
+wsrep_node_address="{% if wsrep_node_address is defined %}{{ wsrep_node_address }}{% else %}{{ ansible_default_ipv4.address}}{% endif %}"
 wsrep_node_name="{{ansible_hostname}}"

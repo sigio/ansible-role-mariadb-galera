@@ -23,9 +23,19 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+  - hosts: galera-db-servers
+    roles:
+      - common
+      - mariadb-galera
+    vars:
+          - galera_wsrep_cluster_name: galera-cluster-1
+          - galera_wsrep_cluster_address: "gcomm://{{ foo_IP }},{{ bar_IP }},{{ baz_IP }}"
+          - mariadb_conf_dir: "/etc/mysql/conf.d"
+          - wsrep_node_address: "{{ node_IP }}" # optional makes sense only if it's not ansible_default_ipv4.address
+          - mariadb_install_xtrabackup: true  # optional
+          - mariadb_install_backupninja: true # optional
+          - ufw_enabled: false                # optional
+
 
 License
 -------
